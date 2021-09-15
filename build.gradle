@@ -1,0 +1,106 @@
+plugins {
+	id 'org.springframework.boot' version '2.5.4'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+	id 'checkstyle'
+	id 'com.github.spotbugs' version '4.6.2'
+	id 'jacoco'
+}
+
+group = 'com.personal.exercises'
+version = '0.0.1'
+sourceCompatibility = '11'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+ext {
+	springBootVersion = '2.5.4'
+	lombokVersion = '1.18.20'
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// Spring web
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion
+
+	// Spring boot
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: springBootVersion
+
+	// Lombok
+	compileOnly group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+	annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombokVersion
+
+	// Test
+	testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
+
+	// Awaitility
+	testImplementation group: 'org.awaitility', name: 'awaitility', version: '4.0.3'
+}
+
+// Lifecycle changes
+test {
+	useJUnitPlatform()
+	testLogging {
+		exceptionFormat = 'full'
+	}
+	dependsOn checkstyleTest
+	finalizedBy jacocoTestReport
+}
+
+check {
+	dependsOn jacocoTestCoverageVerification
+	dependsOn checkstyleMain
+	dependsOn spotbugsMain
+}
+
+// Code style
+checkstyle {
+	toolVersion '8.40'
+	configFile file("${project.rootDir}/config/checkstyle/checkstyle.xml")
+}
+
+spotbugsMain {
+	reports {
+		html.enabled = true
+	}
+}
+
+spotbugsTest {
+	reports {
+		html.enabled = true
+	}
+	excludeFilter = file("${project.rootDir}/config/spotbugs/test-exclude-filter.xml")
+}
+
+// Test coverage
+jacocoTestReport {
+	reports {
+		html.enabled true
+	}
+}
+
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			element = 'CLASS'
+			limit {
+				counter = 'LINE'
+				value = 'COVEREDRATIO'
+				minimum = 1.0
+			}
+			excludes = [
+					// DTOs and exceptions should not be checked
+					'com.personal.exercises.matchtimestringconverter.domain.catalog.*',
+					// Application should not be checked
+					'com.personal.exercises.matchtimestringconverter.Application'
+			]
+		}
+	}
+}
