@@ -57,7 +57,7 @@ The image can be downloaded from docker hub:
 `docker pull ricardoocorreia/match-time-converter:0.0.1`
 
 After that we can start a container:
-`docker run -it --name match-time-converter ricardoocorreia/match-time-converter:0.0.1`
+`docker run -it --name match-time-converter -p 8080:8080 ricardoocorreia/match-time-converter:0.0.1`
 
 If we need to rebuild the docker image, we can do it with the following command:
 `docker build --build-arg JAR_FILE=build/libs/match-time-string-converter-0.0.1.jar -t match-time-converter .`
